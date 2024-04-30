@@ -97,7 +97,8 @@ class Play:
     def __init__(self, screen, gameStateManager, cell_image_path, text_size):
         self.screen = screen
         self.gameStateManager = gameStateManager
-        self.font = pygame.font.Font("./assets/fonts/Noot Regular.ttf", text_size)
+        self.text_size = text_size
+        self.font = pygame.font.Font("./assets/fonts/Noot Regular.ttf", self.text_size)
         self.cell_image_path = cell_image_path
         self.cell_size = 190
         self.cell_image = pygame.image.load(self.cell_image_path).convert_alpha()
@@ -122,8 +123,12 @@ class Play:
         self.died = False
         self.armed = False
         self.treasure = False
-        self.wumpusKilled = False
+        self.win = False
 
+    def set_font(self, font_size):
+        self.text_size = font_size
+        self.font = pygame.font.Font("./assets/fonts/Noot Regular.ttf", font_size)
+    
     def reset(self):
         self.worldMatrix = np.zeros((4, 4), dtype=int)
         self.setMobs()
@@ -142,7 +147,7 @@ class Play:
         self.died = False
         self.armed = False
         self.treasure = False
-        self.wumpusKilled = False
+        self.win = False
 
     def load_images(self):
         self.wumpus_alive_image = pygame.image.load("./assets/Wumpus-Alive.png").convert_alpha()
@@ -167,8 +172,23 @@ class Play:
                 y = row * self.cell_size
                 self.screen.blit(self.cell_image, (x, y))
         
-        self.change_char()
         self.spawn_mobs()
+        self.change_char()
+        
+        pygame.draw.rect(self.screen, "#292A2F", (0, 760, 1024, 8))
+        
+        if self.died:
+            pygame.draw.rect(self.screen, "#FF3131", (0, 0, 760, 768))
+            self.set_font(font_size=100)
+            game_over = self.font.render("Game Over", True, "#000000")
+            game_over_rect = game_over.get_rect(center=(380, 384))
+            self.screen.blit(game_over, game_over_rect)
+        if self.win:
+            pygame.draw.rect(self.screen, "#A0E524", (0, 0, 760, 768))
+            self.set_font(font_size=100)
+            win = self.font.render("Congratulations", True, "#000000")
+            win_rect = win.get_rect(center=(380, 384))
+            self.screen.blit(win, win_rect)
 
     def run(self):
         self.render_display()
@@ -177,8 +197,8 @@ class Play:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.start_btn.is_hovered:
-                    pass
+                if self.restart_btn.is_hovered:
+                    self.reset()
                 if self.back_btn.is_hovered:
                     self.gameStateManager.set_state('start')
                     self.reset()
@@ -237,20 +257,22 @@ class Play:
             print("gained treasure")
         
         if self.treasure and state == 1:
+            self.win = True
             print("win")
 
     def render_panel(self):
         pygame.draw.rect(self.screen, "#292A2F", (760, 0, 264, 768))
         
         # Load Components
-        self.start_btn = Button(image_path=None, text="   START   ", text_size=42, bg_color="#292A2F", font_color="#A0E524", position=(890, 400))
+        self.set_font(font_size=24)
+        self.restart_btn = Button(image_path=None, text="  RESTART  ", text_size=42, bg_color="#292A2F", font_color="#A0E524", position=(890, 400))
         self.back_btn = Button(image_path=None,  text="   BACK   ", text_size=42, bg_color="#292A2F", font_color="#FF3131", position=(890, 500))
         self.github_btn = Button(image_path="./assets/icons8-github-64.png",  text=None, text_size=None, bg_color=None, font_color=None, position=(800, 710))
         self.text_surface = self.font.render("@John Paul Monter", True, "#ffffff")
         self.text_rect = self.text_surface.get_rect(center=(920, 710))
         
         # Display
-        self.start_btn.run(self.screen)
+        self.restart_btn.run(self.screen)
         self.back_btn.run(self.screen)
         self.github_btn.run(self.screen)
         self.screen.blit(self.text_surface, self.text_rect)
@@ -288,20 +310,46 @@ class Play:
         print(self.worldMatrix)
 
     def spawn_mobs(self):
+        self.set_font(font_size=32)
+        breeze = self.font.render("BREEZE", True, "#38b6ff")
+        stench = self.font.render("STENCH", True, "#993b00")
+        
         # Display
         for row in range(4):
             for col in range(4):
                 x = col * self.cell_size
                 y = row * self.cell_size
-                if self.worldMatrix[row][col] == -200:
-                    if self.wumpusKilled: self.screen.blit(self.wumpus_dead_image, (x, y))
+                if self.worldMatrix[row][col] == 100 and self.treasure == False:
+                    self.screen.blit(self.gold_image, (x, y))
+                elif self.worldMatrix[row][col] == 10 and self.armed == False:
+                    self.screen.blit(self.Dagger_image, (x + 50, y - 50))
+                elif self.worldMatrix[row][col] == -200:
+                    if self.win: self.screen.blit(self.wumpus_dead_image, (x, y))
                     else: self.screen.blit(self.wumpus_alive_image, (x, y))
                 elif self.worldMatrix[row][col] == -50:
                     self.screen.blit(self.pit_image, (x, y))
-                elif self.worldMatrix[row][col] == 100 and self.treasure == False:
-                    self.screen.blit(self.gold_image, (x, y))
-                elif self.worldMatrix[row][col] == 10 and self.armed == False:
-                    self.screen.blit(self.Dagger_image, (x, y))
+
+                # Display stench
+                if self.worldMatrix[row][col] == -200:
+                    if row > 0 and (self.worldMatrix[row - 1][col] == 0 or self.worldMatrix[row - 1][col] == 10):
+                        self.screen.blit(stench, (x, y - self.cell_size // 2))
+                    if row < 3 and (self.worldMatrix[row + 1][col] == 0 or self.worldMatrix[row + 1][col] == 10):
+                        self.screen.blit(stench, (x, y + self.cell_size + 85))
+                    if col > 0 and (self.worldMatrix[row][col - 1] == 0 or self.worldMatrix[row][col - 1] == 10):
+                        self.screen.blit(stench, (x - self.cell_size, y + 100))
+                    if col < 3 and (self.worldMatrix[row][col + 1] == 0 or self.worldMatrix[row][col + 1] == 10):
+                        self.screen.blit(stench, (x + self.cell_size, y + 100))
+                
+                # Display breeze
+                if self.worldMatrix[row][col] == -50:
+                    if row > 0 and (self.worldMatrix[row - 1][col] == 0 or self.worldMatrix[row - 1][col] == 10):
+                        self.screen.blit(breeze, (x, y - self.cell_size))
+                    if row < 3 and (self.worldMatrix[row + 1][col] == 0 or self.worldMatrix[row + 1][col] == 10):
+                        self.screen.blit(breeze, (x, y + self.cell_size))
+                    if col > 0 and (self.worldMatrix[row][col - 1] == 0 or self.worldMatrix[row][col - 1] == 10):
+                        self.screen.blit(breeze, (x - self.cell_size, y))
+                    if col < 3 and (self.worldMatrix[row][col + 1] == 0 or self.worldMatrix[row][col + 1] == 10):
+                        self.screen.blit(breeze, (x + self.cell_size, y))
 
     def throw_dagger(self):
         self.dagger_x = self.char_x_coords
@@ -316,7 +364,7 @@ class Play:
                 for i in range(self.char_x, 4):
                     print(i, "|", self.char_y, ": ", self.worldMatrix[self.char_y][i])
                     if self.worldMatrix[self.char_y][i] == -200:
-                        self.wumpusKilled = True
+                        self.win = True
                         print('killed')
             elif self.faceDirection == 'left':
                 self.dagger_x -= self.dagger_speed
@@ -325,7 +373,7 @@ class Play:
                     break
                 for i in range(self.char_x, -1, -1):
                     if self.worldMatrix[self.char_y][i] == -200:
-                        self.wumpusKilled = True
+                        self.win = True
                         print('killed')
             elif self.faceDirection == 'up':
                 self.dagger_y -= self.dagger_speed
@@ -334,7 +382,7 @@ class Play:
                     break
                 for i in range(self.char_y, -1, -1):
                     if self.worldMatrix[i][self.char_x] == -200:
-                        self.wumpusKilled = True
+                        self.win = True
                         print('killed')
             elif self.faceDirection == 'front':
                 self.dagger_y += self.dagger_speed
@@ -343,7 +391,7 @@ class Play:
                     break
                 for i in range(self.char_y, 4):
                     if self.worldMatrix[i][self.char_x] == -200:
-                        self.wumpusKilled = True
+                        self.win = True
                         print('killed')
         
         self.armed = False
