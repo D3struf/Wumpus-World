@@ -94,14 +94,12 @@ class Instruction2:
         pygame.display.update()
 
 class Play:
-    def __init__(self, screen, gameStateManager, cell_image_path, text_size):
+    def __init__(self, screen, gameStateManager, text_size):
         self.screen = screen
         self.gameStateManager = gameStateManager
         self.text_size = text_size
         self.font = pygame.font.Font("./assets/fonts/Noot Regular.ttf", self.text_size)
-        self.cell_image_path = cell_image_path
         self.cell_size = 190
-        self.cell_image = pygame.image.load(self.cell_image_path).convert_alpha()
         self.worldMatrix = np.zeros((4, 4), dtype=int)
         self.setMobs()
         # Player Movement
@@ -110,6 +108,7 @@ class Play:
         self.char_x = 0
         self.char_y = 3
         self.faceDirection = 'front'
+        self.visited = [(3, 0), (2, 0), (3, 1)]
         # Define boundaries
         self.boundary_left = 0
         self.boundary_right = 760
@@ -120,6 +119,8 @@ class Play:
         self.dagger_x = 0
         self.dagger_y = 190
         # State
+        self.died_wumpus = False
+        self.died_pit = False
         self.died = False
         self.armed = False
         self.treasure = False
@@ -138,18 +139,23 @@ class Play:
         self.char_x = 0
         self.char_y = 3
         self.faceDirection = 'front'
+        self.visited = [(3, 0), (2, 0), (3, 1)]
         # Define boundaries
         self.boundary_left = 0
         self.boundary_right = 760
         self.boundary_upper = 0
         self.boundary_lower = 760
         # State
+        self.died_wumpus = False
+        self.died_pit = False
         self.died = False
         self.armed = False
         self.treasure = False
         self.win = False
 
     def load_images(self):
+        self.cell_image = pygame.image.load("./assets/wall.png").convert_alpha()
+        self.wall_cover_image = pygame.image.load("./assets/wall_cover.png").convert_alpha()
         self.wumpus_alive_image = pygame.image.load("./assets/Wumpus-Alive.png").convert_alpha()
         self.wumpus_dead_image = pygame.image.load("./assets/Wumpus-Dead.png").convert_alpha()
         self.pit_image = pygame.image.load("./assets/Pit.png").convert_alpha()
@@ -174,8 +180,9 @@ class Play:
         
         self.spawn_mobs()
         self.change_char()
-        
         pygame.draw.rect(self.screen, "#292A2F", (0, 760, 1024, 8))
+        
+        self.cell_cover()
         
         if self.died:
             pygame.draw.rect(self.screen, "#FF3131", (0, 0, 760, 768))
@@ -183,6 +190,16 @@ class Play:
             game_over = self.font.render("Game Over", True, "#000000")
             game_over_rect = game_over.get_rect(center=(380, 384))
             self.screen.blit(game_over, game_over_rect)
+            if self.died_pit:
+                self.set_font(font_size=30)
+                killedbypit = self.font.render("You fell in the Pit of Darkness.", True, "#000000")
+                killedbypit_rect = killedbypit.get_rect(center=(380, 450))
+                self.screen.blit(killedbypit, killedbypit_rect)
+            if self.died_wumpus:
+                self.set_font(font_size=30)
+                killedbywumpus = self.font.render("You have been Slain by Wumpus.", True, "#000000")
+                killedbywumpus_rect = killedbywumpus.get_rect(center=(380, 450))
+                self.screen.blit(killedbywumpus, killedbywumpus_rect)
         if self.win:
             pygame.draw.rect(self.screen, "#A0E524", (0, 0, 760, 768))
             self.set_font(font_size=100)
@@ -243,9 +260,11 @@ class Play:
         state = self.worldMatrix[self.char_y][self.char_x]
         if state == -50: 
             self.died = True
+            self.died_pit = True
             print("game over caused by pit")
         elif state == -200: 
             self.died = True
+            self.died_wumpus = True
             print("game over caused by wumpus")
         elif state == 10: 
             self.armed = True
@@ -268,15 +287,50 @@ class Play:
         self.restart_btn = Button(image_path=None, text="  RESTART  ", text_size=42, bg_color="#292A2F", font_color="#A0E524", position=(890, 400))
         self.back_btn = Button(image_path=None,  text="   BACK   ", text_size=42, bg_color="#292A2F", font_color="#FF3131", position=(890, 500))
         self.github_btn = Button(image_path="./assets/icons8-github-64.png",  text=None, text_size=None, bg_color=None, font_color=None, position=(800, 710))
-        self.text_surface = self.font.render("@John Paul Monter", True, "#ffffff")
-        self.text_rect = self.text_surface.get_rect(center=(920, 710))
+        text_surface = self.font.render("@John Paul Monter", True, "#ffffff")
+        text_rect = text_surface.get_rect(center=(920, 710))
+        
+        self.set_font(font_size=36)
+        if self.treasure:
+            tresure_obtain = self.font.render("Treasure", True, "#A0E524")
+            tresure_obtain_rect = tresure_obtain.get_rect(topleft=(780, 150))
+        else: 
+            tresure_obtain = self.font.render("Treasure", True, "#FF3131")
+            tresure_obtain_rect = tresure_obtain.get_rect(topleft=(780, 150))
+        if self.win and not self.treasure:
+            wumpus_killed = self.font.render("Killed Wumpus", True, "#A0E524")
+            wumpus_killed_rect = wumpus_killed.get_rect(topleft=(780, 200))
+        else:
+            wumpus_killed = self.font.render("Killed Wumpus", True, "#FF3131")
+            wumpus_killed_rect = wumpus_killed.get_rect(topleft=(780, 200))
+        if self.armed:
+            dagger_obtain = self.font.render("Dagger", True, "#A0E524")
+            dagger_obtain_rect = dagger_obtain.get_rect(topleft=(780, 250))
+        else: 
+            dagger_obtain = self.font.render("Dagger", True, "#FF3131")
+            dagger_obtain_rect = dagger_obtain.get_rect(topleft=(780, 250))
         
         # Display
         self.restart_btn.run(self.screen)
         self.back_btn.run(self.screen)
         self.github_btn.run(self.screen)
-        self.screen.blit(self.text_surface, self.text_rect)
+        self.screen.blit(text_surface, text_rect)
+        self.screen.blit(tresure_obtain, tresure_obtain_rect)
+        self.screen.blit(wumpus_killed, wumpus_killed_rect)
+        self.screen.blit(dagger_obtain, dagger_obtain_rect)
 
+    def cell_cover(self):        
+        if (self.char_y, self.char_x) not in self.visited:
+            self.visited.append((self.char_y, self.char_x))
+        
+        # Render the grid with images
+        for row in range(4):
+            for col in range(4):
+                x = col * self.cell_size
+                y = row * self.cell_size
+                if (row, col) not in self.visited:
+                    self.screen.blit(self.wall_cover_image, (x, y))
+                
     def change_char(self):
         if self.faceDirection == 'front':
             self.screen.blit(self.char_front_image, (self.char_x_coords, self.char_y_coords))

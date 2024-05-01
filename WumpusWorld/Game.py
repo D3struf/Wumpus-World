@@ -20,7 +20,7 @@ class Game:
         self.start = Start(screen=self.screen, gameStateManager=self.gameStateManager, title="WUMPUS WORLD", title_size=72, title_font=self.font, background_path="./assets/Wumpus World.gif", position=(512, 200))
         self.instruction1 = Instruction1(screen=self.screen, gameStateManager=self.gameStateManager, background_path="./assets/Instruction1.gif")
         self.instruction2 = Instruction2(screen=self.screen, gameStateManager=self.gameStateManager, background_path="./assets/Instruction2.gif")
-        self.play = Play(screen=self.screen, gameStateManager=self.gameStateManager, cell_image_path="./assets/wall.png", text_size=24)
+        self.play = Play(screen=self.screen, gameStateManager=self.gameStateManager, text_size=24)
         
         self.states = {
             'start': self.start,
