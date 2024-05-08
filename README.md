@@ -2,7 +2,6 @@
 A Wumpus World Game with Logical Agent Solver
 
 
-
 ## Table of Contents
 
 - [Wumpus-World](#wumpus-world)
@@ -12,6 +11,7 @@ A Wumpus World Game with Logical Agent Solver
   - [Installation](#installation)
   - [Usage](#usage)
   - [Game Rules](#game-rules)
+  - [Agent Demo](#agent-demo)
   - [Screenshots](#screenshots)
 
 ## Introduction
@@ -70,24 +70,31 @@ Follow the on-screen instructions to play the game. Input your moves using the c
 
 For more detailed rules, refer to [Wumpus World Rules](https://www.javatpoint.com/the-wumpus-world-in-artificial-intelligence).
 
+## Agent Demo
+https://github.com/D3struf/Wumpus-World/assets/93712294/b62071dc-a9d1-4aef-8e2d-828dde02df37
+
 ## Screenshots
 
 - Home Page
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/430fa28d-599d-427e-b76d-22af1d338eca)
+  ![Home Page](https://github.com/D3struf/Wumpus-World/assets/93712294/1db5bd4f-9d1c-410e-a672-9fe879352e45)
 
 - Instruction Pages
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/c14c2aa6-9eb5-4b17-8ae4-c2961cbe1368)
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/d6438bb8-6b77-41ad-8cb4-54dfe956f914)
+  ![Instruction Page 1](https://github.com/D3struf/Wumpus-World/assets/93712294/cb3a884f-c113-4f2e-8deb-27563454f66c)
+  ![Instruction Page 2](https://github.com/D3struf/Wumpus-World/assets/93712294/967ab3ab-e584-4c5d-8492-d5d25f12f5e2)
 
-- Piece Selection
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/3966569e-d5ba-4263-8dc4-8a50d3d5e07b)
+- Mode Selection
+  ![image](https://github.com/D3struf/Wumpus-World/assets/93712294/70023f00-6177-4813-b8e3-92634228f439)
 
-- Main Game
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/1afcff45-5aa0-4994-b1fe-9ed147819105)
+- Player Mode Game
+  ![image](https://github.com/D3struf/Wumpus-World/assets/93712294/3e37316c-9019-4d31-926e-de2819714ace)
 
-- Pause Page
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/d8eb2152-ae52-49e5-84d6-9b4da072be2b)
+- AI Mode Game
+  ![image](https://github.com/D3struf/Wumpus-World/assets/93712294/013ce10d-f137-44fe-ae42-744bdaa991dc)
 
-- Winner Page
-  ![image](https://github.com/D3struf/Six-Men-s-Morris/assets/93712294/11e40e94-731f-4245-affb-4a63e4b755a0)
+- Winner Panel
+  ![image](https://github.com/D3struf/Wumpus-World/assets/93712294/53766f71-6638-40c6-a7c4-b0d337716b85)
+
+- Game Over Panel
+  ![image](https://github.com/D3struf/Wumpus-World/assets/93712294/937f4c05-e364-49ff-bafa-013df6ade677)
+
 
