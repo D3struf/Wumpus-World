@@ -1,3 +1,5 @@
+# Wumpus World Agent Solver
+# Made by John Paul Monter
 
 from WumpusWorld.Game import Game
 
